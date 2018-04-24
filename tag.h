@@ -12,8 +12,10 @@ private:
 public:
   Tag(std::string line);
   Tag(Tag &&other);
+  Tag(std::string t, std::vector<std::string> v) : name(t), hashes(v) {}
   virtual ~Tag() {}
   void print(std::ostream s);
+  std::vector<std::string> get_files();
 };
 
 #endif

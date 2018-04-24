@@ -13,6 +13,8 @@ public:
   File(std::string line);
   File(File &&other);
   virtual ~File() {}
+  bool has_hash(std::string hash);
+  void add_hash(std::string hash);
   void print(std::ostream s);//TODO: sobrescribir <<
 };
 

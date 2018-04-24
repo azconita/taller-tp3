@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include "tag.h"
 #include "file.h"
 
@@ -14,9 +15,15 @@ class Index {
  public:
   Index(const char* filename);
   virtual ~Index();
-  void push_file(std::string filename, std::string hash);
-  void tag_hashes(std::string tagname, std::list<std::string> hashes);
-  std::vector<std::string> pull_hashes(std::string tagname);
+  //void push_file(std::string filename, std::string hash);
+  //void tag_hashes(std::string tagname, std::list<std::string> hashes);
+  //std::vector<std::string> pull_hashes(std::string tagname);
+  bool file_has_hash(std::string filename, std::string hash);
+  void add_file_hash(std::string filename, std::string hash);
+  bool tag_exists(std::string tag);
+  std::vector<std::string> get_files_with_tag(std::string tag);
+  void create_tag_with_hashes(std::string tag, std::vector<std::string> v);
+  bool hash_exists(std::string hash);
 };
 
 #endif

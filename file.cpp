@@ -25,3 +25,12 @@ void File::print(std::ostream s) {
   p(this->name);
   std::for_each(this->hashes.begin(),this->hashes.end(), p);
 }
+
+bool File::has_hash(std::string hash) {
+  return (std::find(this->hashes.begin(),this->hashes.end(),hash)
+              != this->hashes.end());
+}
+
+void File::add_hash(std::string hash) {
+  this->hashes.push_back(hash);
+}

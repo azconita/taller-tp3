@@ -35,3 +35,32 @@ Index::~Index() {
     par.second.print();
   }*/
 }
+
+bool Index::file_has_hash(std::string filename, std::string hash) {
+  std::map<std::string, File>::iterator it = this->files.find(filename);
+  return (it != this->files.end()) ? it->second.has_hash(hash) : false;
+}
+
+void Index::add_file_hash(std::string filename, std::string hash) {
+  this->files.find(filename)->second.add_hash(hash);
+}
+
+bool Index::tag_exists(std::string tag) {
+  return (this->tags.find(tag) != this->tags.end());
+}
+
+std::vector<std::string> Index::get_files_with_tag(std::string tag) {
+  return this->tags.find(tag)->second.get_files();
+}
+
+void Index::create_tag_with_hashes(std::string tag, std::vector<std::string> hashes) {
+  this->tags.emplace(tag, Tag(tag, hashes));
+}
+
+bool Index::hash_exists(std::string hash) {
+  for (auto &f: this->files) {
+    if (f.second.has_hash(hash))
+      return true;
+  }
+  return false;
+}
