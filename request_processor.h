@@ -3,16 +3,16 @@
 #include <iostream>
 #include <vector>
 #include "index.h"
-#include "socket.h"
+#include "server_socket.h"
 
 class RequestProcessor {
   std::thread t;
 protected:
-  Socket& client;
+  ServerSocket &client;
   Index &index;
 public:
 
-  RequestProcessor(Index &index, Socket &client) : index(index), client(client) {}
+  RequestProcessor(Index &index, ServerSocket &client) : index(index), client(client) {}
   virtual ~RequestProcessor() {}
   void start() {
     this->t = std::thread(&RequestProcessor::run, this);
@@ -36,7 +36,7 @@ class PushProcessor : public RequestProcessor {
 private:
 
 public:
-  PushProcessor(Index &index, Socket &client) : RequestProcessor(index, client) {}
+  PushProcessor(Index &index, ServerSocket &client) : RequestProcessor(index, client) {}
   virtual ~PushProcessor() {}
   void save_file(std::string filename, std::string filecontent) {
     std::cout << "PushProcessor: " << filename << '\n' << filecontent << '\n';
@@ -62,7 +62,7 @@ class PullProcessor : public RequestProcessor {
 private:
 
 public:
-  PullProcessor(Index &index, Socket &client) : RequestProcessor(index, client) {}
+  PullProcessor(Index &index, ServerSocket &client) : RequestProcessor(index, client) {}
   virtual ~PullProcessor() {}
   void run() {
     std::cout << "run PullProcessor" << '\n';
@@ -83,7 +83,7 @@ class TagProcessor : public RequestProcessor {
 private:
 
 public:
-  TagProcessor(Index &index, Socket &client) : RequestProcessor(index, client) {}
+  TagProcessor(Index &index, ServerSocket &client) : RequestProcessor(index, client) {}
   virtual ~TagProcessor() {}
 
   void run() {

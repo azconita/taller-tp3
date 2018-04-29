@@ -5,32 +5,25 @@
 #include <iostream>
 #include <vector>
 
+
 class Socket {
 private:
-  int port;
+  int sock;
 
 public:
-  Socket(int port) : port(port) {}
-  Socket(Socket &&other) : port(other.port) {}
-  virtual ~Socket() {}
+  Socket();
+  Socket(int sock);
+  Socket(Socket &&other);
+  ~Socket();
 
-  std::string recv_filename() {return "A";}
-  std::string recv_tag() {return "v2.0";}
-  std::string recv_file() {return "texto de prueba";}
-  std::string recv_hash() {return "a14242";}
-  int recv_tagquantity() {return 2;}
-  std::vector<std::string> recv_hashes() {
-    std::vector<std::string> v;
-    v.push_back("a14242");
-    return v;
-  };
-  int recv_respcode() { return 1;}
-
-  void send_file(std::string filename) { std::cout << "sending file: " << filename << '\n';}
-  void send(int i) { std::cout << "socket.send: " << i << '\n';}
-  void send(std::string s) {std::cout << "socket.send: " << s << '\n'; }
-
-  Socket accept_client() { return Socket(1); }
+  int bind_and_listen(const char* port);
+  int connect_to_server(const char* host, const char* port);
+  Socket accept_connection();
+  void shut();
+  int send_buffer(size_t size, const unsigned char *buffer);
+  int receive_buffer(size_t size, const unsigned char *buffer);
+private:
+  int get_hosts(struct addrinfo **result, const char* port, const char* host);
 };
 
 #endif
