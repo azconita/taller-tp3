@@ -13,7 +13,8 @@ private:
 public:
   VersionController(const std::string port, const char* filename);
   ~VersionController() { }
-  void push_file(std::string filename, std::string hash);
+  void start();
+  void push_file(Socket &client);
   void tag_files();
-  void pull_tag(std::string tag);
+  void pull_tag();
 };

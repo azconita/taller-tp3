@@ -7,7 +7,7 @@
 
 
 class Socket {
-private:
+protected:
   int sock;
 
 public:
@@ -15,13 +15,28 @@ public:
   Socket(int sock);
   Socket(Socket &&other);
   ~Socket();
+  Socket(const Socket&) = delete;
+  Socket& operator=(const Socket&) = delete;
 
   int bind_and_listen(const char* port);
   int connect_to_server(const char* host, const char* port);
   Socket accept_connection();
   void shut();
-  int send_buffer(size_t size, const unsigned char *buffer);
-  int receive_buffer(size_t size, const unsigned char *buffer);
+  int send_buffer(size_t size, unsigned char *buffer);
+  int receive_buffer(size_t size, unsigned char *buffer);
+  int recv_int();
+  std::string recv_string();
+  void send_int(int i);
+  void send_string(std::string s);
+
+  std::string recv_file() {return "texto de prueba";}
+  std::vector<std::string> recv_vector() {
+    std::vector<std::string> v;
+    v.push_back("a14242");
+    return v;
+  };
+  void send_file(std::string filename) { std::cout << "sending file: " << filename << '\n';}
+
 private:
   int get_hosts(struct addrinfo **result, const char* port, const char* host);
 };

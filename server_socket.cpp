@@ -3,7 +3,8 @@
 #include <arpa/inet.h>
 
 ServerSocket::ServerSocket(const std::string port) : Socket() {
-  this->bind_and_listen(port.c_str());
+  if (this->bind_and_listen(port.c_str()) == 0)
+    std::cout << "[debug] [ServerSocket] listening \n";
 }
 
 ServerSocket::ServerSocket(ServerSocket&& other) :
@@ -15,14 +16,21 @@ ServerSocket::ServerSocket(Socket&& other) :
 }
 
 ServerSocket::~ServerSocket() {
-  this->shut();
+  std::cout << "[debug] [ServerSocket] closing serversocket: " << this->sock << '\n';
+  //this->shut();
 }
 
-ServerSocket ServerSocket::accept_client() {
-  return std::move(ServerSocket(this->accept_connection()));
+Socket ServerSocket::accept_client() {
+  std::cout << "[debug] [ServerSocket] accepting client" << '\n';
+  Socket s = this->accept_connection();
+  //if ( s.sock != -1)
+  //  std::cout << "new client " << '\n';
+  //return std::move(s);
+  std::cout << "[debug] [ServerSocket] new client" << '\n';
+  return  s;
 }
 
-int ServerSocket::recv_int() {
+/*int ServerSocket::recv_int() {
   int r;
   if (this->receive_buffer(sizeof(int), (unsigned char *) &r) < sizeof(int))
     return -1;//TODO:excepciones
@@ -38,12 +46,13 @@ std::string ServerSocket::recv_string() {
 }
 
 void ServerSocket::send(int i) {
-  this->send_buffer(sizeof(int), (unsigned char *) &i);
+  int s = htonl(i);
+  this->send_buffer(sizeof(int), (unsigned char *) &s);
 }
 
 void ServerSocket::send(std::string s) {
   this->send_buffer(s.size(), (unsigned char *) s.c_str());
-}
+}*/
 
 std::string ServerSocket::recv_filename() {
   this->recv_string();
