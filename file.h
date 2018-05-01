@@ -16,6 +16,7 @@ public:
   bool has_hash(std::string hash);
   void add_hash(std::string hash);
   void print(std::ostream s);//TODO: sobrescribir <<
+  std::string hashes_to_str();
 };
 
 #endif

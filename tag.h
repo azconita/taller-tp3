@@ -15,6 +15,7 @@ public:
   Tag(std::string t, std::vector<std::string> v) : name(t), hashes(v) {}
   virtual ~Tag() {}
   void print(std::ostream s);
+  std::string hashes_to_str();
   std::vector<std::string> get_files();
 };
 

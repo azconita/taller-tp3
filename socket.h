@@ -29,13 +29,13 @@ public:
   void send_int(int i);
   void send_string(std::string s);
 
-  std::string recv_file() {return "texto de prueba";}
+  void recv_file(std::string filename);
   std::vector<std::string> recv_vector() {
     std::vector<std::string> v;
     v.push_back("a14242");
     return v;
   };
-  void send_file(std::string filename) { std::cout << "sending file: " << filename << '\n';}
+  void send_file(std::string filename);
 
 private:
   int get_hosts(struct addrinfo **result, const char* port, const char* host);

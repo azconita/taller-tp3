@@ -1,3 +1,6 @@
+#ifndef REQUEST_PROCESS_H
+#define REQUEST_PROCESS_H
+
 #include <thread>
 #include <string>
 #include <iostream>
@@ -6,16 +9,22 @@
 #include "socket.h"
 
 class RequestProcessor {
+private:
   std::thread t;
 protected:
-  Socket &client;
+  Socket client;
   Index &index;
+  bool finished = false;
 public:
 
-  RequestProcessor(Index &index, Socket &client) : index(index), client(client) {}
+  RequestProcessor(Index &index, Socket client) : index(index), client(client) {}
   virtual ~RequestProcessor() {}
   void start() {
     this->t = std::thread(&RequestProcessor::run, this);
+    //this->finished = true;
+  }
+  bool is_finished() {
+    return this->finished;
   }
   void join() {
     this->t.join();
@@ -36,7 +45,7 @@ class PushProcessor : public RequestProcessor {
 private:
 
 public:
-  PushProcessor(Index &index, Socket &client) : RequestProcessor(index, client) {}
+  PushProcessor(Index &index, Socket client) : RequestProcessor(index, client) {}
   virtual ~PushProcessor() {}
   void save_file(std::string filename, std::string filecontent) {
     std::cout << "PushProcessor: " << filename << '\n' << filecontent << '\n';
@@ -55,10 +64,12 @@ public:
       std::cout << "[debug] [PushProcessor] run: no esta el archivo en el server" << '\n';
       //return 1; //se debe retornar 1 al cliente
       this->client.send_int(1);
-      std::string filecontent = this->client.recv_file();
-      save_file(filename, filecontent); // deberia ser un file manager?
+      this->client.recv_file(filename);
+      //std::string filecontent = this->client.recv_file();
+      //save_file(filename, filecontent); // deberia ser un file manager?
       this->index.add_file_hash(filename, hash);
     }
+    this->finished = true;
   }
 };
 
@@ -80,6 +91,7 @@ public:
     } else {
       this->client.send_int(0);
     }
+    this->finished = true;
   }
 };
 
@@ -107,5 +119,8 @@ public:
       this->index.create_tag_with_hashes(tag, hashes);
       this->client.send_int(1);
     }
+    this->finished = true;
   }
 };
+
+#endif

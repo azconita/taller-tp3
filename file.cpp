@@ -21,6 +21,15 @@ void p(std::string s) {
   std::cout << s << "\n";
 }
 
+std::string File::hashes_to_str() {
+  std::string r(" ");
+  for (auto &h:this->hashes) {
+    r += h;
+    r += " ";
+  }
+  return r;
+}
+
 void File::print(std::ostream s) {
   p(this->name);
   std::for_each(this->hashes.begin(),this->hashes.end(), p);

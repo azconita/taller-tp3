@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <iostream>
+#include <fstream>
 
 Socket::Socket() {
   this->sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -13,11 +15,11 @@ Socket::Socket() {
       throw -1;
 }
 
-Socket::Socket(Socket &&other) : sock(std::move(other.sock)) {
-  this->sock = -1;
+Socket::Socket(Socket &&other) {
+  this->sock = std::move(other.sock);
 }
 
-Socket::Socket(int sock) : sock(std::move(sock)) { }
+Socket::Socket(int sock) : sock(std::move(sock)) {}
 
 int Socket::get_hosts(struct addrinfo **result, const char* port, const char* host) {
   struct addrinfo hints;
@@ -158,4 +160,22 @@ void Socket::send_string(std::string s) {
   this->send_int(s.size());
   std::cout << "[debug] [Socket] send_string: " << s << '\n';
   this->send_buffer(s.size(), (unsigned char *) s.c_str());
+}
+
+
+void Socket::send_file(std::string filename) {
+  std::ifstream ifile(filename);
+  char chunk[1024];
+  while (ifile.read(chunk, 1023)) {
+    std::streamsize s = ((ifile) ? 1024 : ifile.gcount());
+    this->send_string(std::string(chunk));
+  }
+  ifile.close();
+}
+
+void Socket::recv_file(std::string filename) {
+  std::ofstream ofile(filename);
+  std::string rec = this->recv_string();
+  ofile << rec;
+  ofile.close();
 }

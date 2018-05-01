@@ -26,14 +26,13 @@ Index::Index(const char* filename) : config_filename(filename) {
 
 Index::~Index() {
   //save index in file
-  /*for(auto &par: this->files) {
-    std::cout << par.first << '\n';
-    par.second.print();
+  std::ofstream ofile(this->config_filename);
+  for(auto &par: this->files) {
+    ofile << "f " << par.first << par.second.hashes_to_str() << ";\n";
   }
   for(auto &par: this->tags) {
-    std::cout << par.first << '\n';
-    par.second.print();
-  }*/
+    ofile << "t " << par.first << par.second.hashes_to_str() << ";\n";
+  }
 }
 
 bool Index::file_has_hash(std::string filename, std::string hash) {

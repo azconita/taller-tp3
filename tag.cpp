@@ -26,6 +26,15 @@ void Tag::print(std::ostream s) {
   std::for_each(this->hashes.begin(),this->hashes.end(), pr);
 }
 
+std::string Tag::hashes_to_str() {
+  std::string r(" ");
+  for (auto &h:this->hashes) {
+    r += h;
+    r += " ";
+  }
+  return r;
+}
+
 std::vector<std::string> Tag::get_files() {
   return this->hashes;
 }
