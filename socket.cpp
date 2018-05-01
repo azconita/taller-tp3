@@ -116,8 +116,12 @@ int Socket::send_buffer(size_t size, unsigned char *buffer) {
 
 int Socket::receive_buffer(size_t size, unsigned char *buffer) {
   int received, total_received = 0;
+  
+  while ((size - total_received > 0) && ((received = recv(this->sock, (void*) &buffer[total_received],
+              size - total_received, MSG_NOSIGNAL)) > 0)) {
+    total_received += received;
 
-  while ((received = recv(this->sock, (void*) &buffer[total_received],
+  bind_and_listen ((received = recv(this->sock, (void*) &buffer[total_received],
               size - total_received, MSG_NOSIGNAL)) > 0) {
     total_received += received;
   }
