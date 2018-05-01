@@ -1,4 +1,4 @@
-#include "socket.h"
+#include "common_socket.h"
 #include <sys/un.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -84,10 +84,12 @@ Socket Socket::accept_connection() {
   socklen_t peer_addr_size;
   int s;
   peer_addr_size = sizeof(struct sockaddr_un);
-  if ((s = accept(this->sock, (struct sockaddr *) &peer_addr, &peer_addr_size)) != -1)
+  if ((s = accept(this->sock, (struct sockaddr *) &peer_addr, &peer_addr_size)) != -1) {
+    std::cout << "[debug] [Socket] accept_connection: socket: " << s << '\n';
     return Socket(s);
-  else {
-    std::cout << "[error] accept client" << '\n';
+  } else {
+    std::cout << "[error] [Socket] accept_connection: " << strerror(errno)
+            << '\n';
     //return Socket(-1);
     throw -1;
   }
@@ -117,7 +119,7 @@ int Socket::send_buffer(size_t size, unsigned char *buffer) {
 }
 
 int Socket::receive_buffer(size_t size, unsigned char *buffer) {
-  int received, total_received = 0;
+  int received(0), total_received = 0;
   while ((size - total_received > 0) && ((received = recv(this->sock, (void*) &buffer[total_received],
               size - total_received, MSG_NOSIGNAL)) > 0)) {
     total_received += received;
@@ -126,7 +128,7 @@ int Socket::receive_buffer(size_t size, unsigned char *buffer) {
   std::cout << "[debug] [Socket] total bytes recv: " << total_received << '\n';
   // if received == 0: socket closed
   if (received < 0) {
-    std::cout << "[Error] " << strerror(errno) << '\n';
+    std::cout << "[Error] [Socket] receive_buffer:" << strerror(errno) << '\n';
     return -1;
   }
   return total_received;
@@ -134,7 +136,8 @@ int Socket::receive_buffer(size_t size, unsigned char *buffer) {
 
 int Socket::recv_int() {
   int r;
-  if (this->receive_buffer(sizeof(int), (unsigned char *) &r) < sizeof(int))
+  if (this->receive_buffer(sizeof(int), (unsigned char *) &r)
+                        < (int) sizeof(int))
     return -1;//TODO:excepciones
   std::cout << "[debug] [Socket] recv_int: " << ntohl(r) << '\n';
   return ntohl(r);
@@ -143,7 +146,7 @@ int Socket::recv_int() {
 std::string Socket::recv_string() {
   int size = this->recv_int();
   //std::string s;
-  char r[size+1];
+  char r[1024];
   this->receive_buffer(size, reinterpret_cast<unsigned char*>(r));
   r[size] = '\0';
   std::cout << "[debug] [Socket] recv_string: " << std::string(r) << '\n';
@@ -167,7 +170,6 @@ void Socket::send_file(std::string filename) {
   std::ifstream ifile(filename);
   char chunk[1024];
   while (ifile.read(chunk, 1023)) {
-    std::streamsize s = ((ifile) ? 1024 : ifile.gcount());
     this->send_string(std::string(chunk));
   }
   ifile.close();

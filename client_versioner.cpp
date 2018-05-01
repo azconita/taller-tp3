@@ -1,5 +1,5 @@
 #include <string>
-#include "version_client.h"
+#include "client_versioner.h"
 
 VersionClient::VersionClient(std::string hostname, std::string port) :
                             client(hostname, port) { }
@@ -30,7 +30,7 @@ void VersionClient::pull_tag(std::string tag) {
   this->client.send_string(tag);
   if (this->client.recv_respcode() == 1) {
     int q = this->client.recv_tagquantity();
-    for (size_t i = 0; i < q; ++i) {
+    for (int i = 0; i < q; ++i) {
       save_file(this->client.recv_filename(), this->client.recv_file());
     }
   }
@@ -44,4 +44,5 @@ void VersionClient::tag_hashes(std::string tag, std::vector<std::string> hashes)
     this->client.send_string(h);
   }
   int r = this->client.recv_respcode();
+  std::cout << "[debug] [VersionClient] tag_hashes resp: " << r << "\n";
 }

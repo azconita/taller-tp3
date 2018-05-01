@@ -1,6 +1,6 @@
 #include <vector>
 #include <string>
-#include "socket.h"
+#include "common_socket.h"
 #include "client_socket.h"
 
 class VersionClient {

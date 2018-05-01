@@ -1,7 +1,7 @@
 #ifndef CLIENT_SOCKET_H
 #define CLIENT_SOCKET_H value
 
-#include "socket.h"
+#include "common_socket.h"
 #include <string>
 
 class ClientSocket : public Socket {

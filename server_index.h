@@ -4,11 +4,15 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "tag.h"
-#include "file.h"
+#include <mutex>
+#include <condition_variable>
+#include "server_tag.h"
+#include "server_file.h"
 
 class Index {
  private:
+  std::mutex m;
+  std::condition_variable cv;
   const std::string config_filename;
   std::map<std::string, Tag> tags;
   std::map<std::string, File> files;

@@ -1,8 +1,8 @@
 #include <vector>
-#include "index.h"
-#include "request_processor.h"
+#include "server_index.h"
+#include "server_request_processor.h"
 #include <string>
-#include "version_controller.h"
+#include "server_controller.h"
 
 VersionController::VersionController(const std::string port, const char* filename) :
                               acc_socket(port), index(filename) { }

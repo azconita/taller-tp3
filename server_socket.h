@@ -1,7 +1,7 @@
 #ifndef SERVER_SOCKET_H
 #define SERVER_SOCKET_H value
 
-#include "socket.h"
+#include "common_socket.h"
 #include <string>
 #include <vector>
 

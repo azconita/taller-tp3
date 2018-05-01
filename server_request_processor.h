@@ -5,8 +5,8 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include "index.h"
-#include "socket.h"
+#include "server_index.h"
+#include "common_socket.h"
 
 class RequestProcessor {
 private:
@@ -17,11 +17,15 @@ protected:
   bool finished = false;
 public:
 
-  RequestProcessor(Index &index, Socket client) : index(index), client(client) {}
+  RequestProcessor(Index &index, Socket client) : client(std::move(client)),
+              index(index) {}
   virtual ~RequestProcessor() {}
   void start() {
     this->t = std::thread(&RequestProcessor::run, this);
     //this->finished = true;
+  }
+  std::thread::id get_id() {
+    return this->t.get_id();
   }
   bool is_finished() {
     return this->finished;
@@ -32,7 +36,8 @@ public:
   virtual void run() = 0;
   RequestProcessor(const RequestProcessor&) = delete;
   RequestProcessor& operator=(const RequestProcessor&) = delete;
-  RequestProcessor(RequestProcessor&& other) : client(other.client), index(other.index)  {
+  RequestProcessor(RequestProcessor&& other) :
+                      client(std::move(other.client)), index(other.index)  {
     this->t = std::move(other.t);
   }
   RequestProcessor& operator=(RequestProcessor&& other) {
@@ -45,23 +50,29 @@ class PushProcessor : public RequestProcessor {
 private:
 
 public:
-  PushProcessor(Index &index, Socket client) : RequestProcessor(index, client) {}
+  PushProcessor(Index &index, Socket client) :
+          RequestProcessor(index, std::move(client)) {}
   virtual ~PushProcessor() {}
   void save_file(std::string filename, std::string filecontent) {
     std::cout << "PushProcessor: " << filename << '\n' << filecontent << '\n';
   }
   void run() {
-    std::cout << "[debug] [PushProcessor] run" << '\n';
+    std::cout << "[debug] [PushProcessor] [thread:" << this->get_id()
+              << "] run" << '\n';
     std::string filename = this->client.recv_string();
-    std::cout << "[debug] [PushProcessor] run: recv filename: " << filename << '\n';
+    std::cout << "[debug] [PushProcessor] [thread:" << this->get_id()
+              << "] run: recv filename: " << filename << '\n';
     std::string hash = this->client.recv_string();
-    std::cout << "[debug] [PushProcessor] run: recv hash: " << hash << '\n';
+    std::cout << "[debug] [PushProcessor] [thread:" << this->get_id()
+              << "] run: recv hash: " << hash << '\n';
     if(this->index.file_has_hash(filename, hash)) {
       //return 0;
-      std::cout << "[debug] [PushProcessor] run: ya esta el archivo en el server" << '\n';
+      std::cout << "[debug] [PushProcessor] [thread:" << this->get_id()
+                << "] run: ya esta el archivo en el server" << '\n';
       this->client.send_int(0);
     } else {
-      std::cout << "[debug] [PushProcessor] run: no esta el archivo en el server" << '\n';
+      std::cout << "[debug] [PushProcessor] [thread:" << this->get_id()
+                << "] run: no esta el archivo en el server" << '\n';
       //return 1; //se debe retornar 1 al cliente
       this->client.send_int(1);
       this->client.recv_file(filename);
@@ -77,7 +88,8 @@ class PullProcessor : public RequestProcessor {
 private:
 
 public:
-  PullProcessor(Index &index, Socket &client) : RequestProcessor(index, client) {}
+  PullProcessor(Index &index, Socket &client) :
+                    RequestProcessor(index, std::move(client)) {}
   virtual ~PullProcessor() {}
   void run() {
     std::cout << "run PullProcessor" << '\n';
@@ -99,14 +111,18 @@ class TagProcessor : public RequestProcessor {
 private:
 
 public:
-  TagProcessor(Index &index, Socket &client) : RequestProcessor(index, client) {}
+  TagProcessor(Index &index, Socket &client) :
+                    RequestProcessor(index, std::move(client)) {}
   virtual ~TagProcessor() {}
 
   void run() {
     std::cout << "run TagProcessor" << '\n';
     int hash_quantity = this->client.recv_int();
     std::string tag = this->client.recv_string();
-    std::vector<std::string> hashes = this->client.recv_vector();
+    std::vector<std::string> hashes;
+    for (int i = 0; i < hash_quantity; ++i) {
+      hashes.push_back(this->client.recv_string());
+    }
     if (this->index.tag_exists(tag)) {
       this->client.send_int(0);
     } else {

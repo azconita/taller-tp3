@@ -1,10 +1,10 @@
 #include <string>
 #include <vector>
 #include <thread>
-#include "index.h"
-#include "socket.h"
+#include "server_index.h"
+#include "common_socket.h"
 #include "server_socket.h"
-#include "request_processor.h"
+#include "server_request_processor.h"
 
 class VersionController {
 private:
