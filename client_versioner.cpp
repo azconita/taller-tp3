@@ -21,17 +21,17 @@ void VersionClient::push_file(std::string filename, std::string hash) {
   }
 }
 
-void save_file(std::string filename, std::string filecontent) {
-  std::cout << "client pull tag: " << filename << '\n' << filecontent << '\n';
-}
-
 void VersionClient::pull_tag(std::string tag) {
   this->client.send_int(3);
   this->client.send_string(tag);
   if (this->client.recv_respcode() == 1) {
     int q = this->client.recv_tagquantity();
     for (int i = 0; i < q; ++i) {
-      save_file(this->client.recv_filename(), this->client.recv_file());
+      std::string filename(this->client.recv_filename());
+      std::string fname(filename + "." + tag);
+      this->client.recv_file(fname);
+      std::cout << "[debug] [VersionClient] pull_tag resp: " << fname << "\n";
+      filename = "";
     }
   }
 }

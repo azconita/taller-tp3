@@ -20,6 +20,7 @@ Index::Index(const char* filename) : config_filename(filename) {
       tags.emplace(buf_str.substr(0,buf_str.find_first_of(" ")), Tag(buf_str));
     }
   }
+  std::cout << "[debug] [Index] created\n";
   //std::for_each(this->files.begin(),this->files.end(), print);
 
 }
@@ -29,6 +30,7 @@ Index::~Index() {
   std::ofstream ofile(this->config_filename);
   for(auto &par: this->files) {
     ofile << "f " << par.first << par.second.hashes_to_str() << ";\n";
+    //ofile << par.second;
   }
   for(auto &par: this->tags) {
     ofile << "t " << par.first << par.second.hashes_to_str() << ";\n";
@@ -38,12 +40,28 @@ Index::~Index() {
 bool Index::file_has_hash(std::string filename, std::string hash) {
   std::unique_lock<std::mutex> l(this->m);
   std::map<std::string, File>::iterator it = this->files.find(filename);
-  return (it != this->files.end()) ? it->second.has_hash(hash) : false;
+  if (it == this->files.end())   {
+    std::cout << "[debug] [Index] file_has_hash:" << filename << " not found\n";
+    return false;
+  } else if (it->second.has_hash(hash)) {
+    std::cout << "[debug] [Index] file_has_hash:" << filename << " found\n";
+    return true;
+  } else {
+    std::cout << "[debug] [Index] file_has_hash:" << filename << " not found\n";
+    return false;
+  }
+  //return (it != this->files.end()) ? it->second.has_hash(hash) : false;
 }
 
 void Index::add_file_hash(std::string filename, std::string hash) {
   std::unique_lock<std::mutex> l(this->m);
-  this->files.find(filename)->second.add_hash(hash);
+  std::cout << "[debug] [Index] add_file_hash: " << filename << "\n";
+  std::map<std::string, File>::iterator it = this->files.find(filename);
+  if (it != this->files.end()) {
+    it->second.add_hash(hash);
+  } else {
+    this->files.emplace(filename, File(filename, hash));
+  }
 }
 
 bool Index::tag_exists(std::string tag) {
@@ -68,4 +86,13 @@ bool Index::hash_exists(std::string hash) {
       return true;
   }
   return false;
+}
+
+std::string Index::get_filename_of_hash(std::string hash) {
+  for (auto &f: this->files) {
+    std::cout << "[debug] [Index] get_filename_of_hash: " << f.first << '\n';
+    if (f.second.has_hash(hash))
+      return f.first;
+  }
+  return std::string("");
 }

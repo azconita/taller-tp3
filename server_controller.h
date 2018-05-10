@@ -14,10 +14,12 @@ private:
   std::vector<PushProcessor*> pushs;
   std::vector<TagProcessor*> tags;
   std::vector<PullProcessor*> pulls;
+  bool keep = true;
 
 public:
   VersionController(const std::string port, const char* filename);
-  ~VersionController() { }
+  ~VersionController() { this->thread.join();}
   void start();
   void run();
+  void stop();
 };

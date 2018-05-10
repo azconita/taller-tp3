@@ -75,7 +75,7 @@ public:
                 << "] run: no esta el archivo en el server" << '\n';
       //return 1; //se debe retornar 1 al cliente
       this->client.send_int(1);
-      this->client.recv_file(filename);
+      this->client.recv_file(hash);
       //std::string filecontent = this->client.recv_file();
       //save_file(filename, filecontent); // deberia ser un file manager?
       this->index.add_file_hash(filename, hash);
@@ -88,7 +88,7 @@ class PullProcessor : public RequestProcessor {
 private:
 
 public:
-  PullProcessor(Index &index, Socket &client) :
+  PullProcessor(Index &index, Socket client) :
                     RequestProcessor(index, std::move(client)) {}
   virtual ~PullProcessor() {}
   void run() {
@@ -97,7 +97,9 @@ public:
     if (this->index.tag_exists(tag)) {
       this->client.send_int(1);
       std::vector<std::string> files = this->index.get_files_with_tag(tag);
+      this->client.send_int(files.size());
       for (auto &f : files) {
+        this->client.send_string(this->index.get_filename_of_hash(f));
         this->client.send_file(f);
       }
     } else {
@@ -111,7 +113,7 @@ class TagProcessor : public RequestProcessor {
 private:
 
 public:
-  TagProcessor(Index &index, Socket &client) :
+  TagProcessor(Index &index, Socket client) :
                     RequestProcessor(index, std::move(client)) {}
   virtual ~TagProcessor() {}
 

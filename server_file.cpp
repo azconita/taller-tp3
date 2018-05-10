@@ -4,6 +4,7 @@
 #include <sstream>
 #include <algorithm>
 #include <iterator>
+#include <fstream>
 
 File::File(std::string line) {
   this->name = line.substr(0, line.find_first_of(" "));
@@ -13,6 +14,11 @@ File::File(std::string line) {
        std::istream_iterator<std::string>(),
        back_inserter(this->hashes));
 }
+
+File::File(std::string name, std::string hash) : name(name), hashes(1,hash) {
+
+}
+
 
 File::File(File &&other) : name(other.name), hashes(std::move(other.hashes)) {
 }
@@ -42,4 +48,13 @@ bool File::has_hash(std::string hash) {
 
 void File::add_hash(std::string hash) {
   this->hashes.push_back(hash);
+}
+
+std::string File::get_name() {
+  return this->name;
+}
+
+std::ofstream& operator<<(std::ofstream &os,  File& f) {
+  os << "f " << f.get_name() << f.hashes_to_str();
+  return os;
 }

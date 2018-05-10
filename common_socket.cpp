@@ -16,7 +16,8 @@ Socket::Socket() {
 }
 
 Socket::Socket(Socket &&other) {
-  this->sock = std::move(other.sock);
+  this->sock = other.sock;
+  other.sock = -1;
 }
 
 Socket::Socket(int sock) : sock(std::move(sock)) {}
@@ -167,10 +168,13 @@ void Socket::send_string(std::string s) {
 
 
 void Socket::send_file(std::string filename) {
-  std::ifstream ifile(filename);
-  char chunk[1024];
-  while (ifile.read(chunk, 1023)) {
-    this->send_string(std::string(chunk));
+  std::cout << "[debug] [Socket] send_file: " << filename << '\n';
+  std::ifstream ifile(filename, std::ifstream::binary);
+  std::vector<char> buffer (1024,0);
+  while (!ifile.eof()) {
+    ifile.read(buffer.data(), buffer.size());
+    std::cout << "[debug] [Socket] send_file chunk: " << buffer.data() << '\n';
+    this->send_string(std::string(buffer.data()));
   }
   ifile.close();
 }

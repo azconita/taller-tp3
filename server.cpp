@@ -9,6 +9,6 @@ int main(int argc, char const *argv[]) {
   while (getchar() != 'q') {
     continue;
   }
-  //controller.join();
+  server.stop();
   return 0;
 }

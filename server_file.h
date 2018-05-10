@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 class File { // TODO: que herede de otra clase junto con Tag
 private:
@@ -11,12 +13,16 @@ private:
 
 public:
   File(std::string line);
+  File(std::string name, std::string hash);
   File(File &&other);
   virtual ~File() {}
   bool has_hash(std::string hash);
   void add_hash(std::string hash);
   void print(std::ostream s);//TODO: sobrescribir <<
   std::string hashes_to_str();
+   std::string get_name();
 };
+
+std::ofstream& operator<<(std::ofstream &os,  File& f);
 
 #endif

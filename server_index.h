@@ -28,6 +28,7 @@ class Index {
   std::vector<std::string> get_files_with_tag(std::string tag);
   void create_tag_with_hashes(std::string tag, std::vector<std::string> v);
   bool hash_exists(std::string hash);
+  std::string get_filename_of_hash(std::string hash);
 };
 
 #endif

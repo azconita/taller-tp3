@@ -11,8 +11,19 @@ void VersionController::start() {
   this->thread = std::thread(&VersionController::run, this);
 }
 
+void VersionController::stop() {
+  this->acc_socket.shut();
+  this->keep = false;
+  for(auto &client : this->pushs)
+    client->join();
+  for(auto &client : this->tags)
+    client->join();
+  for(auto &client : this->pulls)
+    client->join();
+}
+
 void VersionController::run() {
-  while(true) {
+  while(this->keep) {
     Socket client = this->acc_socket.accept_client();
     int code = client.recv_int();
     std::cout << "[debug] [VersionController] start: recv code: " << code << '\n';
@@ -29,16 +40,22 @@ void VersionController::run() {
         break;
       case 2: {
           std::cout << "[debug] [VersionController] tag hashes \n";
-          TagProcessor proc(this->index, client);
-          this->tags.push_back(&proc);
-          proc.start();
+          //TagProcessor proc(this->index, client);
+          //this->tags.push_back(&proc);
+          //proc.start();
+          TagProcessor* p = new TagProcessor(this->index, std::move(client));
+          this->tags.push_back(p);
+          p->start();
         }
         break;
       case 3: {
           std::cout << "[debug] [VersionController] pull tag \n";
-          PullProcessor proc(this->index, client);
-          this->pulls.push_back(&proc);
-          proc.start();
+          //PullProcessor proc(this->index, client);
+          //this->pulls.push_back(&proc);
+          //proc.start();
+          PullProcessor* p = new PullProcessor(this->index, std::move(client));
+          this->pulls.push_back(p);
+          p->start();
         }
         break;
       default:
