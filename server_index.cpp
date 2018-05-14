@@ -7,15 +7,23 @@
 
 Index::Index(const char* filename) : config_filename(filename) {
   //init maps with filename
-  std::ifstream ifs_cfg(filename);
-  while (ifs_cfg.peek() != EOF) {
-    std::string buf_str;
-    std::getline(ifs_cfg, buf_str);
+  std::ifstream ifs_cfg;
+  ifs_cfg.open(filename);
+  std::string buf_str;
+  //while (ifs_cfg.peek() != EOF) {
+  while (std::getline(ifs_cfg, buf_str)) {
+  //while (!ifs_cfg.eof()) {
+    //std::getline(ifs_cfg, buf_str);
+    //ifs_cfg >> buf_str;
     buf_str.pop_back();
     char c = buf_str.front();
     buf_str.erase(0, 2);
     if (c == 'f') {
-      files.emplace(buf_str.substr(0,buf_str.find_first_of(" ")), File(buf_str));
+      std::string name(buf_str.substr(0,buf_str.find_first_of(" ")));
+      this->files.emplace(name, File(buf_str));
+      std::cout << "opened file: "<< name << " size: " << this->files.size() <<'\n';
+      //File f(buf_str);
+      //files[buf_str.substr(0,buf_str.find_first_of(" "))] = f;
     } else if (c == 't') {
       tags.emplace(buf_str.substr(0,buf_str.find_first_of(" ")), Tag(buf_str));
     }
@@ -38,7 +46,7 @@ Index::~Index() {
   }
 }
 
-bool Index::file_has_hash(std::string filename, std::string hash) {
+bool Index::file_has_hash(std::string &filename, std::string &hash) {
   std::map<std::string, File>::iterator it = this->files.find(filename);
   if (it == this->files.end())   {
     std::cout << "[debug] [Index] file_has_hash:" << filename << " not found\n";
@@ -53,7 +61,7 @@ bool Index::file_has_hash(std::string filename, std::string hash) {
   //return (it != this->files.end()) ? it->second.has_hash(hash) : false;
 }
 
-void Index::add_file_hash(std::string filename, std::string hash) {
+void Index::add_file_hash(std::string &filename, std::string &hash) {
   std::cout << "[debug] [Index] add_file_hash: " << filename << "\n";
   std::map<std::string, File>::iterator it = this->files.find(filename);
   if (it != this->files.end()) {
@@ -63,7 +71,7 @@ void Index::add_file_hash(std::string filename, std::string hash) {
   }
 }
 
-bool Index::file_add_hash_if_possible(std::string filename, std::string hash) {
+bool Index::file_add_hash_if_possible(std::string &filename, std::string &hash) {
   std::unique_lock<std::mutex> l(this->m);
   if (this->file_has_hash(filename, hash))
     return false;
@@ -71,11 +79,11 @@ bool Index::file_add_hash_if_possible(std::string filename, std::string hash) {
   return true;
 }
 
-bool Index::tag_exists(std::string tag) {
+bool Index::tag_exists(std::string &tag) {
   return (this->tags.find(tag) != this->tags.end());
 }
 
-std::vector<std::string> Index::get_files_with_tag(std::string tag) {
+std::vector<std::string> Index::get_files_with_tag(std::string &tag) {
   std::unique_lock<std::mutex> l(this->m);
   if (this->tag_exists(tag))
     return this->tags.find(tag)->second.get_files();
@@ -84,7 +92,7 @@ std::vector<std::string> Index::get_files_with_tag(std::string tag) {
 }
 
 
-bool Index::add_tag_if_possible(std::string tag, std::vector<std::string> hashes) {
+bool Index::add_tag_if_possible(std::string &tag, std::vector<std::string> &hashes) {
   std::unique_lock<std::mutex> l(this->m);
   for (auto &h: hashes) {
     bool found = false;
@@ -105,7 +113,7 @@ bool Index::add_tag_if_possible(std::string tag, std::vector<std::string> hashes
   return false;
 }
 
-bool Index::hash_exists(std::string hash) {
+bool Index::hash_exists(std::string &hash) {
   std::unique_lock<std::mutex> l(this->m);
   for (auto &f: this->files) {
     if (f.second.has_hash(hash))
@@ -114,7 +122,7 @@ bool Index::hash_exists(std::string hash) {
   return false;
 }
 
-std::string Index::get_filename_of_hash(std::string hash) {
+std::string Index::get_filename_of_hash(std::string &hash) {
   for (auto &f: this->files) {
     std::cout << "[debug] [Index] get_filename_of_hash: " << f.first << '\n';
     if (f.second.has_hash(hash))

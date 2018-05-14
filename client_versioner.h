@@ -8,9 +8,9 @@ private:
   ClientSocket client;
 
 public:
-  VersionClient(std::string hostname, std::string port);
+  VersionClient(const char *hostname, const char* port);
   ~VersionClient() {}
-  void push_file(std::string filename, std::string hash);
-  void tag_hashes(std::string tag, std::vector<std::string> hashes);
-  void pull_tag(std::string tag);
+  void push_file(std::string &filename, std::string &hash);
+  void tag_hashes(std::string &tag, std::vector<std::string> &hashes);
+  void pull_tag(std::string &tag);
 };

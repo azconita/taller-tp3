@@ -5,6 +5,9 @@
 #include "common_socket.h"
 #include "server_socket.h"
 #include "server_request_processor.h"
+#include "server_push_processor.h"
+#include "server_pull_processor.h"
+#include "server_tag_processor.h"
 
 class VersionController {
 private:

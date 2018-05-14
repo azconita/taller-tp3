@@ -10,9 +10,9 @@ private:
   std::vector<std::string> hashes;
 
 public:
-  Tag(std::string line);
+  Tag(std::string &line);
   Tag(Tag &&other);
-  Tag(std::string t, std::vector<std::string> v) : name(t), hashes(v) {}
+  Tag(std::string &t, std::vector<std::string> &v) : name(t), hashes(v) {}
   virtual ~Tag() {}
   void print(std::ostream s);
   std::string hashes_to_str();

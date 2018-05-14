@@ -12,13 +12,14 @@ private:
   std::vector<std::string> hashes;
 
 public:
-  File(std::string line);
-  File(std::string name, std::string hash);
+  File(std::string &line);
+  File(std::string &name, std::string &hash);
   File(File &&other);
   virtual ~File() {}
-  bool has_hash(std::string hash);
-  void add_hash(std::string hash);
-  void print(std::ostream s);//TODO: sobrescribir <<
+
+  bool has_hash(std::string &hash);
+  void add_hash(std::string &hash);
+  void print(std::ostream s);
   std::string hashes_to_str();
    std::string get_name();
 };

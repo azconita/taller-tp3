@@ -28,15 +28,10 @@ public:
   int recv_int();
   std::string recv_string();
   void send_int(int i);
-  void send_string(std::string s);
+  void send_string(std::string &s);
 
-  void recv_file(std::string filename);
-  std::vector<std::string> recv_vector() {
-    std::vector<std::string> v;
-    v.push_back("a14242");
-    return v;
-  };
-  void send_file(std::string filename);
+  void recv_file(std::string &filename);
+  void send_file(std::string &filename);
 
 private:
   int get_hosts(struct addrinfo **result, const char* port, const char* host);

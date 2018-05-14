@@ -1,4 +1,4 @@
-#include "common_socket.h"
+  #include "common_socket.h"
 #include <sys/un.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -150,12 +150,13 @@ int Socket::recv_int() {
 
 std::string Socket::recv_string() {
   int size = this->recv_int();
-  //std::string s;
-  char r[1024];
-  this->receive_buffer(size, reinterpret_cast<unsigned char*>(r));
-  r[size] = '\0';
-  std::cout << "[debug] [Socket] recv_string: " << std::string(r) << '\n';
-  return std::string(r);
+  unsigned char * buffer = new unsigned char[size+1]();
+  this->receive_buffer(size, buffer);
+  buffer[size] = '\0';
+  std::string s(reinterpret_cast<char*>(buffer));
+  std::cout << "[debug] [Socket] recv_string: " << s << '\n';
+  delete[](buffer);
+  return s;
 }
 
 void Socket::send_int(int i) {
@@ -164,31 +165,33 @@ void Socket::send_int(int i) {
   this->send_buffer(sizeof(int), (unsigned char *) &s);
 }
 
-void Socket::send_string(std::string s) {
+void Socket::send_string(std::string &s) {
   this->send_int(s.size());
   std::cout << "[debug] [Socket] send_string: " << s << '\n';
   this->send_buffer(s.size(), (unsigned char *) s.c_str());
 }
 
 
-void Socket::send_file(std::string filename) {
+void Socket::send_file(std::string &filename) {
   std::cout << "[debug] [Socket] send_file: " << filename << '\n';
   std::ifstream ifile(filename, std::ifstream::binary);
-  std::vector<char> buffer (1024,0);
-  while (!ifile.eof()) {
-    ifile.read(buffer.data(), buffer.size());
-    std::cout << "[debug] [Socket] send_file chunk: " << buffer.data() << '\n';
-    this->send_string(std::string(buffer.data()));
-  }
+  ifile.seekg(0, ifile.end);
+  size_t size = ifile.tellg();
+  ifile.seekg(0, ifile.beg);
+  unsigned char * buffer = new unsigned char[size]();
+  ifile.read((char *) buffer, size);
+  this->send_int(size);
+  this->send_buffer(size, buffer);
   ifile.close();
+  delete[] buffer;
 }
 
-void Socket::recv_file(std::string filename) {
+void Socket::recv_file(std::string &filename) {
   std::ofstream ofile(filename, std::ifstream::binary);
   int size = this->recv_int();
   unsigned char * buffer = new unsigned char[size]();
   this->receive_buffer(size, buffer);
-  ofile << buffer;
-  delete(buffer);
+  ofile.write((char*) buffer, size);
+  delete[] buffer;
   ofile.close();
 }

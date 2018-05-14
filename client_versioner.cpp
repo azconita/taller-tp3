@@ -1,10 +1,10 @@
 #include <string>
 #include "client_versioner.h"
 
-VersionClient::VersionClient(std::string hostname, std::string port) :
+VersionClient::VersionClient(const char *hostname, const char* port) :
                             client(hostname, port) { }
 
-void VersionClient::push_file(std::string filename, std::string hash) {
+void VersionClient::push_file(std::string &filename, std::string &hash) {
   std::cout << "[debug] [VersionClient] push_file: send 1\n";
   this->client.send_int(1);
   std::cout << "[debug] [VersionClient] push_file: send filename\n";
@@ -21,7 +21,7 @@ void VersionClient::push_file(std::string filename, std::string hash) {
   }
 }
 
-void VersionClient::pull_tag(std::string tag) {
+void VersionClient::pull_tag(std::string &tag) {
   this->client.send_int(3);
   this->client.send_string(tag);
   if (this->client.recv_respcode() == 1) {
@@ -29,14 +29,15 @@ void VersionClient::pull_tag(std::string tag) {
     for (int i = 0; i < q; ++i) {
       std::string filename = this->client.recv_filename();
       std::string fname(filename + "." + tag);
-      this->client.recv_file(filename + "." + tag);
+      this->client.recv_file(fname);
+      //this->client.recv_file(filename + "." + tag);
       std::cout << "[debug] [VersionClient] pull_tag resp: " << (filename + "." + tag) << "\n";
 
     }
   }
 }
 
-void VersionClient::tag_hashes(std::string tag, std::vector<std::string> hashes) {
+void VersionClient::tag_hashes(std::string &tag, std::vector<std::string> &hashes) {
   this->client.send_int(2);
   this->client.send_int(hashes.size());
   this->client.send_string(tag);

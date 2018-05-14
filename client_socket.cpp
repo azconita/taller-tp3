@@ -3,9 +3,9 @@
 #include <arpa/inet.h>
 
 
-ClientSocket::ClientSocket(const std::string hostname, const std::string port) :
+ClientSocket::ClientSocket(const char* hostname, const char* port) :
                         Socket() {
-  if (this->connect_to_server(hostname.c_str(), port.c_str()) == 0)
+  if (this->connect_to_server(hostname, port) == 0)
   std::cout << "[debug] [ClientSocket] connected to server\n";
 }
 

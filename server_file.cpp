@@ -6,7 +6,7 @@
 #include <iterator>
 #include <fstream>
 
-File::File(std::string line) {
+File::File(std::string &line) {
   this->name = line.substr(0, line.find_first_of(" "));
   line = line.substr(line.find_first_of(" "));
   std::istringstream iss(line);
@@ -15,7 +15,7 @@ File::File(std::string line) {
        back_inserter(this->hashes));
 }
 
-File::File(std::string name, std::string hash) : name(name), hashes(1,hash) {
+File::File(std::string &name, std::string &hash) : name(name), hashes(1,hash) {
 
 }
 
@@ -23,7 +23,7 @@ File::File(std::string name, std::string hash) : name(name), hashes(1,hash) {
 File::File(File &&other) : name(other.name), hashes(std::move(other.hashes)) {
 }
 
-void p(std::string s) {
+void p(std::string &s) {
   std::cout << s << "\n";
 }
 
@@ -42,9 +42,7 @@ void File::print(std::ostream s) {
   std::for_each(this->hashes.begin(),this->hashes.end(), p);
 }
 
-bool File::has_hash(std::string hash) {
-  //return (std::find(this->hashes.begin(),this->hashes.end(),hash)
-  //            != this->hashes.end());
+bool File::has_hash(std::string &hash) {
   std::cout << "hash: searched " << hash << "]\n";
   for (auto &h:this->hashes) {
     if (hash == h) {
@@ -55,7 +53,7 @@ bool File::has_hash(std::string hash) {
   return false;
 }
 
-void File::add_hash(std::string hash) {
+void File::add_hash(std::string &hash) {
   this->hashes.push_back(hash);
 }
 

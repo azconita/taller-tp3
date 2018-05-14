@@ -6,7 +6,7 @@
 
 class ClientSocket : public Socket {
 public:
-  ClientSocket(const std::string hostname, const std::string port);
+  ClientSocket(const char* hostname, const char* port);
   ~ClientSocket();
 
   int recv_respcode();

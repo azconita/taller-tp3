@@ -6,7 +6,7 @@
 #include <iterator>
 #include <fstream>
 
-Tag::Tag(std::string line) {
+Tag::Tag(std::string &line) {
   this->name = line.substr(0, line.find_first_of(" "));
   line = line.substr(line.find_first_of(" "));
   std::istringstream iss(line);
@@ -18,7 +18,7 @@ Tag::Tag(std::string line) {
 Tag::Tag(Tag &&other) : name(other.name), hashes(std::move(other.hashes)) {
 }
 
-void pr(std::string s) {
+void pr(std::string &s) {
   std::cout << s << "\n";
 }
 

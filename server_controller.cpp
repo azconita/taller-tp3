@@ -15,14 +15,20 @@ void VersionController::stop() {
   this->acc_socket.shut();
   this->keep = false;
   std::cout << "[debug] [VersionController] joining threads" << '\n';
-  for(auto &client : this->pushs)
+  for(auto &client : this->pushs) {
     client->join();
+    delete(client);
+  }
   this->pushs.clear();
-  for(auto &client : this->tags)
+  for(auto &client : this->tags) {
     client->join();
+    delete(client);
+  }
   this->tags.clear();
-  for(auto &client : this->pulls)
+  for(auto &client : this->pulls) {
     client->join();
+    delete(client);
+  }
   this->pulls.clear();
 }
 
