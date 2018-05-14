@@ -65,22 +65,19 @@ public:
     std::string hash = this->client.recv_string();
     std::cout << "[debug] [PushProcessor] [thread:" << this->get_id()
               << "] run: recv hash: " << hash << '\n';
-    if(this->index.file_has_hash(filename, hash)) {
-      //return 0;
+    if(!this->index.file_add_hash_if_possible(filename, hash)) {
       std::cout << "[debug] [PushProcessor] [thread:" << this->get_id()
                 << "] run: ya esta el archivo en el server" << '\n';
       this->client.send_int(0);
     } else {
       std::cout << "[debug] [PushProcessor] [thread:" << this->get_id()
                 << "] run: no esta el archivo en el server" << '\n';
-      //return 1; //se debe retornar 1 al cliente
+      //se debe retornar 1 al cliente
       this->client.send_int(1);
       this->client.recv_file(hash);
-      //std::string filecontent = this->client.recv_file();
-      //save_file(filename, filecontent); // deberia ser un file manager?
-      this->index.add_file_hash(filename, hash);
     }
     this->finished = true;
+    this->client.shut();
   }
 };
 
@@ -94,9 +91,9 @@ public:
   void run() {
     std::cout << "run PullProcessor" << '\n';
     std::string tag = this->client.recv_string();
-    if (this->index.tag_exists(tag)) {
+    std::vector<std::string> files = this->index.get_files_with_tag(tag);
+    if (!files.empty()) {
       this->client.send_int(1);
-      std::vector<std::string> files = this->index.get_files_with_tag(tag);
       this->client.send_int(files.size());
       for (auto &f : files) {
         this->client.send_string(this->index.get_filename_of_hash(f));
@@ -106,6 +103,7 @@ public:
       this->client.send_int(0);
     }
     this->finished = true;
+    this->client.shut();
   }
 };
 
@@ -118,26 +116,24 @@ public:
   virtual ~TagProcessor() {}
 
   void run() {
-    std::cout << "run TagProcessor" << '\n';
+    std::cout << "[debug] [TagProcessor] [thread:" << this->get_id()
+              << "] run" << '\n';
     int hash_quantity = this->client.recv_int();
+    std::cout << "[debug] [TagProcessor] [thread:" << this->get_id()
+              << "] hash quantity: " << hash_quantity << '\n';
     std::string tag = this->client.recv_string();
+    std::cout << "[debug] [TagProcessor] [thread:" << this->get_id()
+              << "] tag: " << tag << '\n';
     std::vector<std::string> hashes;
     for (int i = 0; i < hash_quantity; ++i) {
       hashes.push_back(this->client.recv_string());
     }
-    if (this->index.tag_exists(tag)) {
-      this->client.send_int(0);
-    } else {
-      for (auto &h: hashes) {
-        if (!this->index.hash_exists(h)) {
-          this->client.send_int(0);
-          return;
-        }
-      }
-      this->index.create_tag_with_hashes(tag, hashes);
+    if (this->index.add_tag_if_possible(tag, hashes))
       this->client.send_int(1);
-    }
+    else
+      this->client.send_int(0);
     this->finished = true;
+    this->client.shut();
   }
 };
 

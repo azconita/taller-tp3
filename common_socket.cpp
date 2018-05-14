@@ -49,12 +49,12 @@ int Socket::bind_and_listen(const char* port) {
   freeaddrinfo(results);
   if (s != 0) {
     close(this->sock);
-    throw -1;
+    return -1;
   }
 
   if (listen(this->sock, 1) == -1) { // cuántos?
     close(this->sock);
-    throw -1;
+    return -1;
   }
   return 0;
 }
@@ -94,6 +94,10 @@ Socket Socket::accept_connection() {
     //return Socket(-1);
     throw -1;
   }
+}
+
+bool Socket::not_valid() {
+  return (this->sock == -1);
 }
 
 Socket::~Socket() {
@@ -180,8 +184,11 @@ void Socket::send_file(std::string filename) {
 }
 
 void Socket::recv_file(std::string filename) {
-  std::ofstream ofile(filename);
-  std::string rec = this->recv_string();
-  ofile << rec;
+  std::ofstream ofile(filename, std::ifstream::binary);
+  int size = this->recv_int();
+  unsigned char * buffer = new unsigned char[size]();
+  this->receive_buffer(size, buffer);
+  ofile << buffer;
+  delete(buffer);
   ofile.close();
 }

@@ -22,9 +22,5 @@ int ClientSocket::recv_tagquantity() {
 }
 
 std::string ClientSocket::recv_filename() {
-  int size = this->recv_int();
-  char r[1024];
-
-  this->receive_buffer(size, reinterpret_cast<unsigned char*>(r));
-  return std::string(r);
+  return this->recv_string();
 }

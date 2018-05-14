@@ -21,6 +21,7 @@ public:
   int bind_and_listen(const char* port);
   int connect_to_server(const char* host, const char* port);
   Socket accept_connection();
+  bool not_valid();
   void shut();
   int send_buffer(size_t size, unsigned char *buffer);
   int receive_buffer(size_t size, unsigned char *buffer);

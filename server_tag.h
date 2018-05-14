@@ -17,6 +17,9 @@ public:
   void print(std::ostream s);
   std::string hashes_to_str();
   std::vector<std::string> get_files();
+  std::string get_name();
 };
+
+std::ofstream& operator<<(std::ofstream &os, Tag& t);
 
 #endif

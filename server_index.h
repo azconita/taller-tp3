@@ -19,16 +19,16 @@ class Index {
  public:
   Index(const char* filename);
   virtual ~Index();
-  //void push_file(std::string filename, std::string hash);
-  //void tag_hashes(std::string tagname, std::list<std::string> hashes);
-  //std::vector<std::string> pull_hashes(std::string tagname);
-  bool file_has_hash(std::string filename, std::string hash);
-  void add_file_hash(std::string filename, std::string hash);
-  bool tag_exists(std::string tag);
+
+  bool file_add_hash_if_possible(std::string filename, std::string hash);
   std::vector<std::string> get_files_with_tag(std::string tag);
-  void create_tag_with_hashes(std::string tag, std::vector<std::string> v);
-  bool hash_exists(std::string hash);
   std::string get_filename_of_hash(std::string hash);
+  bool add_tag_if_possible(std::string tag, std::vector<std::string> hashes);
+ private:
+  bool hash_exists(std::string hash);
+  bool tag_exists(std::string tag);
+  void add_file_hash(std::string filename, std::string hash);
+  bool file_has_hash(std::string filename, std::string hash);
 };
 
 #endif

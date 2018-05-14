@@ -27,11 +27,11 @@ void VersionClient::pull_tag(std::string tag) {
   if (this->client.recv_respcode() == 1) {
     int q = this->client.recv_tagquantity();
     for (int i = 0; i < q; ++i) {
-      std::string filename(this->client.recv_filename());
+      std::string filename = this->client.recv_filename();
       std::string fname(filename + "." + tag);
-      this->client.recv_file(fname);
-      std::cout << "[debug] [VersionClient] pull_tag resp: " << fname << "\n";
-      filename = "";
+      this->client.recv_file(filename + "." + tag);
+      std::cout << "[debug] [VersionClient] pull_tag resp: " << (filename + "." + tag) << "\n";
+
     }
   }
 }

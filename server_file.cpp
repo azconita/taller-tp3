@@ -29,6 +29,7 @@ void p(std::string s) {
 
 std::string File::hashes_to_str() {
   std::string r(" ");
+  std::sort(this->hashes.begin(),this->hashes.end());
   for (auto &h:this->hashes) {
     r += h;
     r += " ";
@@ -42,8 +43,16 @@ void File::print(std::ostream s) {
 }
 
 bool File::has_hash(std::string hash) {
-  return (std::find(this->hashes.begin(),this->hashes.end(),hash)
-              != this->hashes.end());
+  //return (std::find(this->hashes.begin(),this->hashes.end(),hash)
+  //            != this->hashes.end());
+  std::cout << "hash: searched " << hash << "]\n";
+  for (auto &h:this->hashes) {
+    if (hash == h) {
+      return true;
+    }
+  }
+  std::cout << "retorno falso\n";
+  return false;
 }
 
 void File::add_hash(std::string hash) {
@@ -55,6 +64,11 @@ std::string File::get_name() {
 }
 
 std::ofstream& operator<<(std::ofstream &os,  File& f) {
+  os << "f " << f.get_name() << f.hashes_to_str();
+  return os;
+}
+
+std::ostream& operator<<(std::ostream &os,  File& f) {
   os << "f " << f.get_name() << f.hashes_to_str();
   return os;
 }

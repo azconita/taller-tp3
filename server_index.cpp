@@ -21,24 +21,24 @@ Index::Index(const char* filename) : config_filename(filename) {
     }
   }
   std::cout << "[debug] [Index] created\n";
-  //std::for_each(this->files.begin(),this->files.end(), print);
-
+  for(auto &par: this->files) {
+    std::cout << "[debug] [Index] " << par.second << "\n";
+  }
 }
 
 Index::~Index() {
+  std::cout << "[debug] [Index] deleted\n";
   //save index in file
   std::ofstream ofile(this->config_filename);
   for(auto &par: this->files) {
-    ofile << "f " << par.first << par.second.hashes_to_str() << ";\n";
-    //ofile << par.second;
+    ofile << par.second << ";\n";
   }
   for(auto &par: this->tags) {
-    ofile << "t " << par.first << par.second.hashes_to_str() << ";\n";
+    ofile << par.second << ";\n";
   }
 }
 
 bool Index::file_has_hash(std::string filename, std::string hash) {
-  std::unique_lock<std::mutex> l(this->m);
   std::map<std::string, File>::iterator it = this->files.find(filename);
   if (it == this->files.end())   {
     std::cout << "[debug] [Index] file_has_hash:" << filename << " not found\n";
@@ -54,7 +54,6 @@ bool Index::file_has_hash(std::string filename, std::string hash) {
 }
 
 void Index::add_file_hash(std::string filename, std::string hash) {
-  std::unique_lock<std::mutex> l(this->m);
   std::cout << "[debug] [Index] add_file_hash: " << filename << "\n";
   std::map<std::string, File>::iterator it = this->files.find(filename);
   if (it != this->files.end()) {
@@ -64,19 +63,46 @@ void Index::add_file_hash(std::string filename, std::string hash) {
   }
 }
 
-bool Index::tag_exists(std::string tag) {
+bool Index::file_add_hash_if_possible(std::string filename, std::string hash) {
   std::unique_lock<std::mutex> l(this->m);
+  if (this->file_has_hash(filename, hash))
+    return false;
+  this->add_file_hash(filename, hash);
+  return true;
+}
+
+bool Index::tag_exists(std::string tag) {
   return (this->tags.find(tag) != this->tags.end());
 }
 
 std::vector<std::string> Index::get_files_with_tag(std::string tag) {
   std::unique_lock<std::mutex> l(this->m);
-  return this->tags.find(tag)->second.get_files();
+  if (this->tag_exists(tag))
+    return this->tags.find(tag)->second.get_files();
+  else
+    return std::vector<std::string>();
 }
 
-void Index::create_tag_with_hashes(std::string tag, std::vector<std::string> hashes) {
+
+bool Index::add_tag_if_possible(std::string tag, std::vector<std::string> hashes) {
   std::unique_lock<std::mutex> l(this->m);
-  this->tags.emplace(tag, Tag(tag, hashes));
+  for (auto &h: hashes) {
+    bool found = false;
+    for (auto &f: this->files) {
+      if (f.second.has_hash(h)) {
+        std::cout << "[debug] [Index] add_tag_if_possible: hash [" << h << "] found\n";
+        found = true;
+      }
+    }
+    if (!found)
+      return false;
+  }
+  if (this->tags.find(tag) == this->tags.end()) {
+      this->tags.emplace(tag, Tag(tag, hashes));
+      return true;
+  }
+  std::cout << "[debug] [Index] add_tag_if_possible: tag " << tag << " found\n";
+  return false;
 }
 
 bool Index::hash_exists(std::string hash) {

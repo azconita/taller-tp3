@@ -24,5 +24,5 @@ public:
 };
 
 std::ofstream& operator<<(std::ofstream &os,  File& f);
-
+std::ostream& operator<<(std::ostream &os,  File& f);
 #endif
