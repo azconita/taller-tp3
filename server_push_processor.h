@@ -13,7 +13,7 @@ class PushProcessor : public RequestProcessor {
 public:
   PushProcessor(Index &index, Socket client) :
           RequestProcessor(index, std::move(client)) {}
-  ~PushProcessor() {std::cout << "PushProcessor destructor\n";}
+  ~PushProcessor() {}
   void run();
 };
 

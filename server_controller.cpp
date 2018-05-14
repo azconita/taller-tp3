@@ -14,7 +14,6 @@ void VersionController::start() {
 void VersionController::stop() {
   this->acc_socket.shut();
   this->keep = false;
-  std::cout << "[debug] [VersionController] joining threads" << '\n';
   for(auto &client : this->pushs) {
     client->join();
     delete(client);
@@ -39,10 +38,8 @@ void VersionController::run() {
       if (client.not_valid())
         continue;
       int code = client.recv_int();
-      std::cout << "[debug] [VersionController] start: recv code: " << code << '\n';
       switch (code) {
         case 1: {
-            std::cout << "[debug] [VersionController] push file \n";
             //PushProcessor proc(this->index, client);
             //this->clients.push_back(&proc);
             //proc.start();
@@ -52,7 +49,6 @@ void VersionController::run() {
           }
           break;
         case 2: {
-            std::cout << "[debug] [VersionController] tag hashes \n";
             //TagProcessor proc(this->index, client);
             //this->tags.push_back(&proc);
             //proc.start();
@@ -62,7 +58,6 @@ void VersionController::run() {
           }
           break;
         case 3: {
-            std::cout << "[debug] [VersionController] pull tag \n";
             //PullProcessor proc(this->index, client);
             //this->pulls.push_back(&proc);
             //proc.start();
@@ -71,8 +66,7 @@ void VersionController::run() {
             p->start();
           }
           break;
-        default:
-          std::cout << "comando recibido invalido\n";
+        //default:
       }
       /*for(auto &client : this->pushs) {
         if (client->is_finished()) {
@@ -97,7 +91,6 @@ void VersionController::run() {
         }
       }*/
     } catch (int e) {
-      std::cout << "[error] accepting client" << '\n';
       continue;
     }
   }

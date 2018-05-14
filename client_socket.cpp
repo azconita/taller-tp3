@@ -5,8 +5,8 @@
 
 ClientSocket::ClientSocket(const char* hostname, const char* port) :
                         Socket() {
-  if (this->connect_to_server(hostname, port) == 0)
-  std::cout << "[debug] [ClientSocket] connected to server\n";
+  (this->connect_to_server(hostname, port) == 0);
+
 }
 
 ClientSocket::~ClientSocket() {

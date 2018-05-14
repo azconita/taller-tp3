@@ -16,7 +16,7 @@ private:
 public:
   PullProcessor(Index &index, Socket client) :
                     RequestProcessor(index, std::move(client)) {}
-  ~PullProcessor() {std::cout << "PullProcessor destructor\n";}
+  ~PullProcessor() {}
   void run();
 };
 

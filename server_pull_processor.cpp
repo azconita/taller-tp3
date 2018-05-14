@@ -1,7 +1,6 @@
 #include "server_pull_processor.h"
 
 void PullProcessor::run() {
-  std::cout << "run PullProcessor" << '\n';
   std::string tag = this->client.recv_string();
   std::vector<std::string> files = this->index.get_files_with_tag(tag);
   if (!files.empty()) {

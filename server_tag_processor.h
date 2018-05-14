@@ -16,7 +16,7 @@ private:
 public:
   TagProcessor(Index &index, Socket client) :
                 RequestProcessor(index, std::move(client)) {}
-  ~TagProcessor() {std::cout << "TagProcessor destructor\n";}
+  ~TagProcessor() {}
 
   void run();
 };

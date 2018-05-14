@@ -43,13 +43,11 @@ void File::print(std::ostream s) {
 }
 
 bool File::has_hash(std::string &hash) {
-  std::cout << "hash: searched " << hash << "]\n";
   for (auto &h:this->hashes) {
     if (hash == h) {
       return true;
     }
   }
-  std::cout << "retorno falso\n";
   return false;
 }
 

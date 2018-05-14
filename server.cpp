@@ -8,7 +8,6 @@ int main(int argc, char const *argv[]) {
   while (getchar() != 'q') {
     continue;
   }
-  std::cout << "stoping server..." << '\n';
   server.stop();
   return 0;
 }

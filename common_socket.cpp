@@ -1,4 +1,4 @@
-  #include "common_socket.h"
+#include "common_socket.h"
 #include <sys/un.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -86,7 +86,6 @@ Socket Socket::accept_connection() {
   int s;
   peer_addr_size = sizeof(struct sockaddr_un);
   if ((s = accept(this->sock, (struct sockaddr *) &peer_addr, &peer_addr_size)) != -1) {
-    std::cout << "[debug] [Socket] accept_connection: socket: " << s << '\n';
     return Socket(s);
   } else {
     std::cout << "[error] [Socket] accept_connection: " << strerror(errno)
@@ -101,7 +100,6 @@ bool Socket::not_valid() {
 }
 
 Socket::~Socket() {
-  std::cout << "[debug] [Socket] closing socket: " << this->sock << '\n';
   if (this->sock != -1)
     close(this->sock);
 }
@@ -116,7 +114,6 @@ int Socket::send_buffer(size_t size, unsigned char *buffer) {
   while ((sent = send(this->sock, &buffer[total_sent], size - total_sent, MSG_NOSIGNAL)) > 0) {
     total_sent += sent;
   }
-  std::cout << "[debug] [Socket] total bytes sent: " << total_sent << '\n';
   // if sent == 0: socket closed
   if (sent < 0)
     return -1;
@@ -130,7 +127,6 @@ int Socket::receive_buffer(size_t size, unsigned char *buffer) {
     total_received += received;
 
   }
-  std::cout << "[debug] [Socket] total bytes recv: " << total_received << '\n';
   // if received == 0: socket closed
   if (received < 0) {
     std::cout << "[Error] [Socket] receive_buffer:" << strerror(errno) << '\n';
@@ -144,7 +140,6 @@ int Socket::recv_int() {
   if (this->receive_buffer(sizeof(int), (unsigned char *) &r)
                         < (int) sizeof(int))
     return -1;//TODO:excepciones
-  std::cout << "[debug] [Socket] recv_int: " << ntohl(r) << '\n';
   return ntohl(r);
 }
 
@@ -154,26 +149,22 @@ std::string Socket::recv_string() {
   this->receive_buffer(size, buffer);
   buffer[size] = '\0';
   std::string s(reinterpret_cast<char*>(buffer));
-  std::cout << "[debug] [Socket] recv_string: " << s << '\n';
   delete[](buffer);
   return s;
 }
 
 void Socket::send_int(int i) {
   int s = htonl(i);
-  std::cout << "[debug] [Socket] send_int: " << i << '\n';
   this->send_buffer(sizeof(int), (unsigned char *) &s);
 }
 
 void Socket::send_string(std::string &s) {
   this->send_int(s.size());
-  std::cout << "[debug] [Socket] send_string: " << s << '\n';
   this->send_buffer(s.size(), (unsigned char *) s.c_str());
 }
 
 
 void Socket::send_file(std::string &filename) {
-  std::cout << "[debug] [Socket] send_file: " << filename << '\n';
   std::ifstream ifile(filename, std::ifstream::binary);
   ifile.seekg(0, ifile.end);
   size_t size = ifile.tellg();
