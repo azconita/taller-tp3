@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iterator>
 #include <fstream>
+#include <vector>
 
 Tag::Tag(std::string &line) {
   this->name = line.substr(0, line.find_first_of(" "));
@@ -46,6 +47,11 @@ std::string Tag::get_name() {
 }
 
 std::ofstream& operator<<(std::ofstream &os,  Tag& t) {
+  os << "t " << t.get_name() << t.hashes_to_str();
+  return os;
+}
+
+std::ostream& operator<<(std::ostream &os,  Tag& t) {
   os << "t " << t.get_name() << t.hashes_to_str();
   return os;
 }

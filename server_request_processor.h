@@ -16,7 +16,6 @@ protected:
   Index &index;
   bool finished = false;
 public:
-
   RequestProcessor(Index &index, Socket client) : client(std::move(client)),
               index(index) {}
   virtual ~RequestProcessor() {}
@@ -28,10 +27,6 @@ public:
   RequestProcessor& operator=(const RequestProcessor&) = delete;
   RequestProcessor(RequestProcessor&& other);
   RequestProcessor& operator=(RequestProcessor&& other);
-
-  std::thread::id get_id() {
-    return this->t.get_id();
-  }
 };
 
 #endif

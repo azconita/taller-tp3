@@ -1,4 +1,6 @@
 #include "server_tag_processor.h"
+#include <string>
+#include <vector>
 
 void TagProcessor::run() {
   int hash_quantity = this->client.recv_int();

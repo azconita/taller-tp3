@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include "client_versioner.h"
 
 VersionClient::VersionClient(const char *hostname, const char* port) :
@@ -25,18 +26,20 @@ void VersionClient::pull_tag(std::string &tag) {
       std::string filename = this->client.recv_filename();
       std::string fname(filename + "." + tag);
       this->client.recv_file(fname);
-      //this->client.recv_file(filename + "." + tag);
-
     }
+  } else {
+    std::cout << "Error: tag/hash incorrecto." << '\n';
   }
 }
 
-void VersionClient::tag_hashes(std::string &tag, std::vector<std::string> &hashes) {
+void VersionClient::tag_hashes(std::string &tag,
+                               std::vector<std::string> &hashes) {
   this->client.send_int(2);
   this->client.send_int(hashes.size());
   this->client.send_string(tag);
   for (auto &h: hashes) {
     this->client.send_string(h);
   }
-  this->client.recv_respcode();
+  if (this->client.recv_respcode() == 0)
+    std::cout << "Error: tag/hash incorrecto." << '\n';
 }

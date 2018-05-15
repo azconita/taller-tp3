@@ -9,16 +9,12 @@
 #include "common_socket.h"
 #include "server_request_processor.h"
 
-
 class PullProcessor : public RequestProcessor {
-private:
-
 public:
   PullProcessor(Index &index, Socket client) :
                     RequestProcessor(index, std::move(client)) {}
   ~PullProcessor() {}
   void run();
 };
-
 
 #endif

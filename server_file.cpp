@@ -16,9 +16,7 @@ File::File(std::string &line) {
 }
 
 File::File(std::string &name, std::string &hash) : name(name), hashes(1,hash) {
-
 }
-
 
 File::File(File &&other) : name(other.name), hashes(std::move(other.hashes)) {
 }

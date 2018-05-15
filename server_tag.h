@@ -10,7 +10,7 @@ private:
   std::vector<std::string> hashes;
 
 public:
-  Tag(std::string &line);
+  explicit Tag(std::string &line);
   Tag(Tag &&other);
   Tag(std::string &t, std::vector<std::string> &v) : name(t), hashes(v) {}
   virtual ~Tag() {}
@@ -21,5 +21,5 @@ public:
 };
 
 std::ofstream& operator<<(std::ofstream &os, Tag& t);
-
+std::ostream& operator<<(std::ostream &os,  Tag& t);
 #endif

@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 Socket::Socket() {
   this->sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -22,7 +23,8 @@ Socket::Socket(Socket &&other) {
 
 Socket::Socket(int sock) : sock(std::move(sock)) {}
 
-int Socket::get_hosts(struct addrinfo **result, const char* port, const char* host) {
+int Socket::get_hosts(struct addrinfo **result, const char* port,
+                      const char* host) {
   struct addrinfo hints;
   memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_family = AF_INET;       // IPv4
@@ -66,16 +68,16 @@ int Socket::connect_to_server(const char* host, const char* port) {
   if (this->get_hosts(&results, port, host) != 0)
     return 1;
   for (res = results; res != NULL; res = res->ai_next) {
-    if ((s = connect(this->sock, res->ai_addr, res->ai_addrlen)) == -1)
-      std::cout << "[Error] " << strerror(errno) << '\n';
-    else
+    if ((s = connect(this->sock, res->ai_addr, res->ai_addrlen)) != -1)
       break;
+    //else
+      //std::cout << "[Error] " << strerror(errno) << '\n';
   }
   freeaddrinfo(results);
-  //TODO:usar excepciones!!!
   if (s == -1) {
     close(this->sock);
-    throw -1;
+    //throw -1;
+    return -1;
   }
   return 0;
 }
@@ -85,13 +87,14 @@ Socket Socket::accept_connection() {
   socklen_t peer_addr_size;
   int s;
   peer_addr_size = sizeof(struct sockaddr_un);
-  if ((s = accept(this->sock, (struct sockaddr *) &peer_addr, &peer_addr_size)) != -1) {
+  if ((s = accept(this->sock, (struct sockaddr *) &peer_addr,
+          &peer_addr_size)) != -1) {
     return Socket(s);
   } else {
-    std::cout << "[error] [Socket] accept_connection: " << strerror(errno)
-            << '\n';
-    //return Socket(-1);
-    throw -1;
+    //std::cout << "[error] [Socket] accept_connection: " << strerror(errno)
+    //        << '\n';
+    return Socket(-1);
+    //throw -1;
   }
 }
 
@@ -111,7 +114,8 @@ void Socket::shut() {
 int Socket::send_buffer(size_t size, unsigned char *buffer) {
   int sent, total_sent = 0;
 
-  while ((sent = send(this->sock, &buffer[total_sent], size - total_sent, MSG_NOSIGNAL)) > 0) {
+  while ((sent = send(this->sock, &buffer[total_sent],
+            size - total_sent, MSG_NOSIGNAL)) > 0) {
     total_sent += sent;
   }
   // if sent == 0: socket closed
@@ -122,14 +126,13 @@ int Socket::send_buffer(size_t size, unsigned char *buffer) {
 
 int Socket::receive_buffer(size_t size, unsigned char *buffer) {
   int received(0), total_received = 0;
-  while ((size - total_received > 0) && ((received = recv(this->sock, (void*) &buffer[total_received],
+  while ((size - total_received > 0) &&
+        ((received = recv(this->sock, (void*) &buffer[total_received],
               size - total_received, MSG_NOSIGNAL)) > 0)) {
     total_received += received;
-
   }
   // if received == 0: socket closed
   if (received < 0) {
-    std::cout << "[Error] [Socket] receive_buffer:" << strerror(errno) << '\n';
     return -1;
   }
   return total_received;
@@ -139,7 +142,7 @@ int Socket::recv_int() {
   int r;
   if (this->receive_buffer(sizeof(int), (unsigned char *) &r)
                         < (int) sizeof(int))
-    return -1;//TODO:excepciones
+    return -1;
   return ntohl(r);
 }
 

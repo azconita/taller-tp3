@@ -17,7 +17,7 @@ class Index {
   std::map<std::string, Tag> tags;
   std::map<std::string, File> files;
  public:
-  Index(const char* filename);
+  explicit Index(const char* filename);
   virtual ~Index();
 
   bool file_add_hash_if_possible(std::string &filename, std::string &hash);

@@ -12,7 +12,7 @@ private:
   std::vector<std::string> hashes;
 
 public:
-  File(std::string &line);
+  explicit File(std::string &line);
   File(std::string &name, std::string &hash);
   File(File &&other);
   virtual ~File() {}

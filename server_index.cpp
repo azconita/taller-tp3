@@ -1,6 +1,9 @@
 #include "server_index.h"
 #include <fstream>
 #include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 #include <algorithm>
 #include "server_tag.h"
 #include "server_file.h"
@@ -10,34 +13,26 @@ Index::Index(const char* filename) : config_filename(filename) {
   std::ifstream ifs_cfg;
   ifs_cfg.open(filename);
   std::string buf_str;
-  //while (ifs_cfg.peek() != EOF) {
   while (std::getline(ifs_cfg, buf_str)) {
-  //while (!ifs_cfg.eof()) {
-    //std::getline(ifs_cfg, buf_str);
-    //ifs_cfg >> buf_str;
     buf_str.pop_back();
     char c = buf_str.front();
     buf_str.erase(0, 2);
+    std::string name(buf_str.substr(0,buf_str.find_first_of(" ")));
     if (c == 'f') {
-      std::string name(buf_str.substr(0,buf_str.find_first_of(" ")));
       this->files.emplace(name, File(buf_str));
-      //File f(buf_str);
-      //files[buf_str.substr(0,buf_str.find_first_of(" "))] = f;
     } else if (c == 't') {
-      tags.emplace(buf_str.substr(0,buf_str.find_first_of(" ")), Tag(buf_str));
+      this->tags.emplace(name, Tag(buf_str));
     }
   }
-  //for(auto &par: this->files) {
-  //}
 }
 
 Index::~Index() {
   //save index in file
   std::ofstream ofile(this->config_filename);
-  for(auto &par: this->files) {
+  for (auto &par: this->files) {
     ofile << par.second << ";\n";
   }
-  for(auto &par: this->tags) {
+  for (auto &par: this->tags) {
     ofile << par.second << ";\n";
   }
 }
@@ -63,7 +58,8 @@ void Index::add_file_hash(std::string &filename, std::string &hash) {
   }
 }
 
-bool Index::file_add_hash_if_possible(std::string &filename, std::string &hash) {
+bool Index::file_add_hash_if_possible(std::string &filename,
+                                      std::string &hash) {
   std::unique_lock<std::mutex> l(this->m);
   if (this->file_has_hash(filename, hash))
     return false;
@@ -84,7 +80,8 @@ std::vector<std::string> Index::get_files_with_tag(std::string &tag) {
 }
 
 
-bool Index::add_tag_if_possible(std::string &tag, std::vector<std::string> &hashes) {
+bool Index::add_tag_if_possible(std::string &tag,
+                              std::vector<std::string> &hashes) {
   std::unique_lock<std::mutex> l(this->m);
   for (auto &h: hashes) {
     bool found = false;
@@ -96,11 +93,12 @@ bool Index::add_tag_if_possible(std::string &tag, std::vector<std::string> &hash
     if (!found)
       return false;
   }
-  if (this->tags.find(tag) == this->tags.end()) {
-      this->tags.emplace(tag, Tag(tag, hashes));
-      return true;
+  if (this->tags.find(tag) != this->tags.end()) {
+    //tag exists
+    return false;
   }
-  return false;
+  this->tags.emplace(tag, Tag(tag, hashes));
+  return true;
 }
 
 bool Index::hash_exists(std::string &hash) {

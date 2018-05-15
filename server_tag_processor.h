@@ -9,10 +9,7 @@
 #include "common_socket.h"
 #include "server_request_processor.h"
 
-
 class TagProcessor : public RequestProcessor {
-private:
-
 public:
   TagProcessor(Index &index, Socket client) :
                 RequestProcessor(index, std::move(client)) {}

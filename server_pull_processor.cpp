@@ -1,4 +1,6 @@
 #include "server_pull_processor.h"
+#include <string>
+#include <vector>
 
 void PullProcessor::run() {
   std::string tag = this->client.recv_string();

@@ -12,7 +12,7 @@ protected:
 
 public:
   Socket();
-  Socket(int sock);
+  explicit Socket(int sock);
   Socket(Socket &&other);
   ~Socket();
   Socket(const Socket&) = delete;

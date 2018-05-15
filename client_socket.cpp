@@ -2,11 +2,9 @@
 #include <string>
 #include <arpa/inet.h>
 
-
 ClientSocket::ClientSocket(const char* hostname, const char* port) :
                         Socket() {
   (this->connect_to_server(hostname, port) == 0);
-
 }
 
 ClientSocket::~ClientSocket() {
