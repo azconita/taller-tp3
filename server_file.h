@@ -6,7 +6,9 @@
 #include <iostream>
 #include <fstream>
 
-class File { // TODO: que herede de otra clase junto con Tag
+/*Componente del Index
+  contiene hashes asociados a un archivo con nombre determinado*/
+class File {
 private:
   std::string name;
   std::vector<std::string> hashes;
@@ -21,7 +23,7 @@ public:
   void add_hash(std::string &hash);
   void print(std::ostream s);
   std::string hashes_to_str();
-   std::string get_name();
+  std::string get_name();
 };
 
 std::ofstream& operator<<(std::ofstream &os,  File& f);

@@ -8,6 +8,10 @@
 #include "server_index.h"
 #include "common_socket.h"
 
+#define RETURN_CODE_OK 1
+#define RETURN_CODE_FAIL 0
+
+/*Thread: interfaz de procesos posibles (push, pull, tag)*/
 class RequestProcessor {
 private:
   std::thread t;

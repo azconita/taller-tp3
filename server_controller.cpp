@@ -8,8 +8,9 @@ VersionController::VersionController(const std::string port,
                                     const char* filename) :
                               acc_socket(port), index(filename) { }
 
-void VersionController::start() {
-  this->thread = std::thread(&VersionController::run, this);
+VersionController::~VersionController() {
+  this->stop();
+  this->thread.join();
 }
 
 void VersionController::stop() {
@@ -32,6 +33,10 @@ void VersionController::stop() {
   this->pulls.clear();
 }
 
+void VersionController::start() {
+  this->thread = std::thread(&VersionController::run, this);
+}
+
 void VersionController::run() {
   while (this->keep) {
     try {
@@ -40,19 +45,19 @@ void VersionController::run() {
         continue;
       int code = client.recv_int();
       switch (code) {
-        case 1: {
+        case PUSH_REQUEST: {
           PushProcessor* p = new PushProcessor(this->index, std::move(client));
           this->pushs.push_back(p);
           p->start();
           }
           break;
-        case 2: {
+        case TAG_REQUEST: {
           TagProcessor* p = new TagProcessor(this->index, std::move(client));
           this->tags.push_back(p);
           p->start();
           }
           break;
-        case 3: {
+        case PULL_REQUEST: {
           PullProcessor* p = new PullProcessor(this->index, std::move(client));
           this->pulls.push_back(p);
           p->start();
@@ -63,22 +68,21 @@ void VersionController::run() {
         if (client->is_finished()) {
           std::cout << "[debug] [VersionController] joining push thread \n";
           client->join();
-          std::cout << "[debug] [VersionController] joined push thread \n";
-
+          //se debe borrar el item del vector
         }
       }
       for(auto &client : this->tags) {
         if (client->is_finished()) {
           std::cout << "[debug] [VersionController] joining tag thread \n";
           client->join();
-          std::cout << "[debug] [VersionController] joined tag thread \n";
+          //se debe brrar el item del vector
         }
       }
       for(auto &client : this->pulls) {
         if (client->is_finished()) {
           std::cout << "[debug] [VersionController] joining pull thread \n";
           client->join();
-          std::cout << "[debug] [VersionController] joined pull thread \n";
+          //se debe borrar el item del vector
         }
       }*/
     } catch (int e) {

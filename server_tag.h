@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+/*Componente del Index
+  contiene hashes asociados a un tag con nombre determinado*/
 class Tag {
 private:
   std::string name;

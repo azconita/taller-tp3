@@ -15,13 +15,10 @@ ServerSocket::ServerSocket(Socket&& other) :
 }
 
 ServerSocket::~ServerSocket() {
-  //this->shut();
+  this->shut();
 }
 
 Socket ServerSocket::accept_client() {
   Socket s = this->accept_connection();
-  //if ( s.sock != -1)
-  //  std::cout << "new client " << '\n';
-  //return std::move(s);
-  return  s;
+  return s;
 }

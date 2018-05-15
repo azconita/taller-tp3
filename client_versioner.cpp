@@ -13,6 +13,7 @@ void VersionClient::push_file(std::string &filename, std::string &hash) {
   if (response == 1) {
     this->client.send_file(filename);
   } else if (response == 0) {
+    //std::cout << "Error: hash ya existe." << '\n';
     return;
   }
 }
