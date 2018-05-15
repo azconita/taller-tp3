@@ -37,5 +37,6 @@ public:
   /*thread del servidor que espera clientes y lanza RequestProcessor*/
   void run();
 private:
+  void try_join_threads();
   void stop();
 };

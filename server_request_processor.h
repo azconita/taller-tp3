@@ -19,12 +19,15 @@ protected:
   Socket client;
   Index &index;
   bool finished = false;
+  bool joined = false;
 public:
   RequestProcessor(Index &index, Socket client) : client(std::move(client)),
               index(index) {}
   virtual ~RequestProcessor() {}
   void start();
   bool is_finished();
+  bool not_joined();
+  void mark_joined();
   void join();
   virtual void run() = 0;
   RequestProcessor(const RequestProcessor&) = delete;

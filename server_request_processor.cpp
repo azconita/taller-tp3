@@ -8,6 +8,14 @@ bool RequestProcessor::is_finished() {
   return this->finished;
 }
 
+bool RequestProcessor::not_joined() {
+  return !(this->joined);
+}
+
+void RequestProcessor::mark_joined() {
+  this->joined = true;
+}
+
 void RequestProcessor::join() {
   this->t.join();
 }
